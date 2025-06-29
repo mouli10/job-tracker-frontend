@@ -16,7 +16,8 @@ const Login = ({ setUser }) => {
     console.log('All env vars:', import.meta.env)
     
     try {
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8001'
+      // Temporarily hardcode for testing
+      const apiUrl = 'https://job-tracker-backend-pij9.onrender.com'
       console.log('Using API URL:', apiUrl)
       const response = await fetch(`${apiUrl}/auth/login`)
       const data = await response.json()
