@@ -4,10 +4,20 @@ import { Mail, Briefcase, BarChart3, CheckCircle } from 'lucide-react'
 const Login = ({ setUser }) => {
   const [loading, setLoading] = useState(false)
 
+  // Temporary debug - remove after testing
+  console.log('VITE_API_URL:', import.meta.env.VITE_API_URL)
+
   const handleGoogleLogin = async () => {
     setLoading(true)
+    
+    // Debug logging
+    console.log('Environment check:')
+    console.log('VITE_API_URL:', import.meta.env.VITE_API_URL)
+    console.log('All env vars:', import.meta.env)
+    
     try {
       const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8001'
+      console.log('Using API URL:', apiUrl)
       const response = await fetch(`${apiUrl}/auth/login`)
       const data = await response.json()
       
