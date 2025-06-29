@@ -1,11 +1,40 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Mail, Briefcase, BarChart3, CheckCircle } from 'lucide-react'
 
 const Login = ({ setUser }) => {
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(true)
+  const [checkingSession, setCheckingSession] = useState(true)
 
-  // Temporary debug - remove after testing
-  console.log('VITE_API_URL:', import.meta.env.VITE_API_URL)
+  // Check for existing session on component mount
+  useEffect(() => {
+    checkExistingSession()
+  }, [])
+
+  const checkExistingSession = async () => {
+    try {
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8001'
+      const response = await fetch(`${apiUrl}/auth/session`, {
+        credentials: 'include' // Include cookies
+      })
+      const data = await response.json()
+      
+      if (data.authenticated) {
+        // User is already logged in, redirect to dashboard
+        setUser({
+          id: data.user_id,
+          email: data.email
+        })
+        window.location.href = '/dashboard'
+      } else {
+        setLoading(false)
+      }
+    } catch (error) {
+      console.error('Session check error:', error)
+      setLoading(false)
+    } finally {
+      setCheckingSession(false)
+    }
+  }
 
   const handleGoogleLogin = async () => {
     setLoading(true)
@@ -105,10 +134,15 @@ const Login = ({ setUser }) => {
                 <div>
                   <button
                     onClick={handleGoogleLogin}
-                    disabled={loading}
+                    disabled={loading || checkingSession}
                     className="group relative flex w-full justify-center rounded-lg border border-transparent bg-primary-600 px-4 py-3 text-sm font-medium text-white hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    {loading ? (
+                    {checkingSession ? (
+                      <div className="flex items-center">
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                        Checking session...
+                      </div>
+                    ) : loading ? (
                       <div className="flex items-center">
                         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
                         Connecting to Gmail...
