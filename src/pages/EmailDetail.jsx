@@ -21,25 +21,21 @@ const EmailDetail = ({ user }) => {
   const [error, setError] = useState(null)
 
   useEffect(() => {
-    const fetchEmail = async () => {
+    const fetchEmailDetail = async () => {
+      setLoading(true)
       try {
-        setLoading(true)
-        const response = await fetch(`http://localhost:8001/emails/${emailId}?user_id=${user.id}`)
-        
-        if (!response.ok) {
-          throw new Error('Failed to fetch email')
-        }
-        
+        const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8001'
+        const response = await fetch(`${apiUrl}/emails/${emailId}?user_id=${user.id}`)
         const data = await response.json()
         setEmail(data)
-      } catch (err) {
-        setError(err.message)
+      } catch (error) {
+        console.error('Error fetching email detail:', error)
       } finally {
         setLoading(false)
       }
     }
 
-    fetchEmail()
+    fetchEmailDetail()
   }, [emailId, user.id])
 
   const getCategoryIcon = (category) => {

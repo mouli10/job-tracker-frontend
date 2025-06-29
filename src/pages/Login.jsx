@@ -7,7 +7,8 @@ const Login = ({ setUser }) => {
   const handleGoogleLogin = async () => {
     setLoading(true)
     try {
-      const response = await fetch('http://localhost:8001/auth/login')
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8001'
+      const response = await fetch(`${apiUrl}/auth/login`)
       const data = await response.json()
       
       if (data.authorization_url) {

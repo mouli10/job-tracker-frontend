@@ -20,31 +20,34 @@ const Dashboard = ({ user }) => {
   const [refreshing, setRefreshing] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedCategory, setSelectedCategory] = useState(searchParams.get('category') || '')
+  const [company, setCompany] = useState(searchParams.get('company') || '')
 
   const category = searchParams.get('category')
 
   const fetchEmails = async () => {
+    setLoading(true)
     try {
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8001'
       const params = new URLSearchParams({
         user_id: user.id,
-        max_results: 25
+        ...(category && { category }),
+        ...(company && { company }),
+        max_results: '100'
       })
-      
-      if (category) {
-        params.append('category', category)
-      }
-      
-      const response = await fetch(`http://localhost:8001/emails?${params}`)
+      const response = await fetch(`${apiUrl}/emails?${params}`)
       const data = await response.json()
       setEmails(data.emails || [])
     } catch (error) {
       console.error('Error fetching emails:', error)
+    } finally {
+      setLoading(false)
     }
   }
 
   const fetchStats = async () => {
     try {
-      const response = await fetch(`http://localhost:8001/dashboard/stats?user_id=${user.id}`)
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8001'
+      const response = await fetch(`${apiUrl}/dashboard/stats?user_id=${user.id}`)
       const data = await response.json()
       setStats(data)
     } catch (error) {
@@ -65,7 +68,7 @@ const Dashboard = ({ user }) => {
       setLoading(false)
     }
     loadData()
-  }, [user.id, category])
+  }, [user.id, category, company])
 
   const getCategoryIcon = (category) => {
     switch (category) {
@@ -248,6 +251,19 @@ const Dashboard = ({ user }) => {
               <option value="interview_scheduled">Interview Scheduled</option>
               <option value="offer_received">Offer Received</option>
             </select>
+          </div>
+          <div className="sm:w-48">
+            <label htmlFor="company" className="block text-sm font-medium text-gray-700 mb-1">
+              Company
+            </label>
+            <input
+              type="text"
+              id="company"
+              value={company}
+              onChange={(e) => setCompany(e.target.value)}
+              placeholder="Search by company..."
+              className="input"
+            />
           </div>
         </div>
       </div>
